@@ -1,0 +1,231 @@
+<style>
+  /* ============================================================================
+     ระบบดีไซน์สว่างสดใสแบบคลินิกและเทคโนโลยีทางการแพทย์ (Luminous Clinic & Medical Tech)
+     เวอร์ชัน: 0.0.5 AI Core (MedTech Luminous Theme & Comment System)
+     กลุ่มงานพยาธิวิทยาคลินิกและเทคนิคการแพทย์ โรงพยาบาลมะเร็งสุราษฎร์ธานี
+     ============================================================================ */
+
+  /* --------------------------------------------------
+     1. การบังคับพฤติกรรมสัมผัสและสไตล์รากฐาน (Base Controls & Smoothness)
+     -------------------------------------------------- */
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* บังคับใช้ฟอนต์ตัวเลขดิจิทัล 'Roboto Mono' กับตัวเลขที่ต้องการความคมชัด */
+  .font-mono,
+  [id^="dashTotal"],
+  [id^="dashOverall"],
+  .swal2-html-container .timer-count {
+    font-family: 'Roboto Mono', monospace !important;
+  }
+
+  /* คลาสเสริมสำหรับ Text Shadow เรืองแสงเบาๆ */
+  .text-shadow-sm {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+
+  /* --------------------------------------------------
+     2. ลวดลายตารางห้องปฏิบัติการสีอ่อน (Luminous Science Tech Grid)
+     -------------------------------------------------- */
+  .tech-grid-pattern {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(30, 58, 138, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30, 58, 138, 0.04) 1px, transparent 1px);
+  }
+
+  /* --------------------------------------------------
+     3. แอนิเมชันก้อนสีพาสเทลให้เปล่งปลั่งสว่างไสว (Vibrant Pastel Blobs)
+     -------------------------------------------------- */
+  .blob {
+    transition: background-color 1.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                transform 25s infinite alternate ease-in-out;
+    will-change: transform;
+  }
+
+  .blob-1 {
+    width: 600px; height: 600px;
+    left: -10%; top: -10%;
+    animation: float-1 20s infinite alternate ease-in-out;
+  }
+  .blob-2 {
+    width: 700px; height: 700px;
+    right: -15%; bottom: -20%;
+    animation: float-2 24s infinite alternate ease-in-out;
+  }
+  .blob-3 {
+    width: 500px; height: 500px;
+    left: 30%; top: 40%;
+    animation: float-3 22s infinite alternate ease-in-out;
+  }
+  .blob-4 {
+    width: 400px; height: 400px;
+    animation: float-4 18s infinite alternate ease-in-out;
+  }
+
+  /* แอนิเมชันจังหวะการลอยของฟองสบู่พาสเทล */
+  @keyframes float-1 {
+    0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+    50% { transform: translate(60px, -60px) scale(1.05) rotate(10deg); }
+    100% { transform: translate(-40px, 40px) scale(0.95) rotate(-10deg); }
+  }
+  @keyframes float-2 {
+    0% { transform: translate(0px, 0px) scale(1.02) rotate(0deg); }
+    50% { transform: translate(-80px, 60px) scale(0.95) rotate(-15deg); }
+    100% { transform: translate(50px, -50px) scale(1.08) rotate(15deg); }
+  }
+  @keyframes float-3 {
+    0% { transform: translate(0px, 0px) scale(0.95) rotate(0deg); }
+    50% { transform: translate(70px, 50px) scale(1.05) rotate(20deg); }
+    100% { transform: translate(-50px, -70px) scale(1) rotate(-5deg); }
+  }
+  @keyframes float-4 {
+    0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+    50% { transform: translate(-40px, -80px) scale(1.1) rotate(-20deg); }
+    100% { transform: translate(30px, 50px) scale(0.9) rotate(10deg); }
+  }
+
+  /* --------------------------------------------------
+     4. ระบบดาวน์โหลดจำลองภาพลักษณ์พรีเมียม (Skeleton Shimmer Effect)
+     -------------------------------------------------- */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 30%,
+      rgba(255, 255, 255, 0.9) 60%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer-movement 1.8s infinite;
+    content: '';
+  }
+  @keyframes shimmer-movement {
+    100% { transform: translateX(100%); }
+  }
+
+  /* --------------------------------------------------
+     5. แถบเลื่อนเรียบหรู (Premium Custom Scrollbar) สำหรับกล่องคอมเมนต์
+     -------------------------------------------------- */
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: rgba(30, 58, 138, 0.03);
+    border-radius: 12px;
+  }
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: rgba(30, 58, 138, 0.15);
+    border-radius: 12px;
+  }
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: rgba(30, 58, 138, 0.3);
+  }
+
+  .animate-fade-in {
+    animation: fadeInEffect 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes fadeInEffect {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* --------------------------------------------------
+     6. ปรับแต่งดีไซน์ SweetAlert2 ให้เป็น Glassmorphism สไตล์ MedTech
+     -------------------------------------------------- */
+  .swal2-popup {
+    font-family: 'Prompt', sans-serif !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 25px 50px -12px rgba(30, 58, 138, 0.25) !important;
+    padding: 2.5rem 1.5rem !important;
+  }
+  .swal2-title {
+    font-family: 'Prompt', sans-serif !important;
+    font-weight: 800 !important;
+    color: #1E3A8A !important;
+    font-size: 1.4rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .swal2-html-container {
+    color: #475569 !important;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+    font-weight: 500 !important;
+  }
+  .swal2-actions {
+    gap: 1rem !important;
+    margin-top: 2rem !important;
+  }
+  
+  /* แต่งปุ่มยืนยัน (สีน้ำเงิน) และ ยกเลิก (สีแดงเลือดนก) */
+  .swal2-confirm {
+    border-radius: 9999px !important; /* Full rounded */
+    font-weight: 700 !important;
+    padding: 12px 28px !important;
+    font-size: 1rem !important;
+    background: linear-gradient(to right, #1E3A8A, #3B82F6) !important;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3) !important;
+    transition: all 0.2s ease-in-out !important;
+  }
+  .swal2-cancel {
+    border-radius: 9999px !important;
+    font-weight: 700 !important;
+    padding: 12px 28px !important;
+    font-size: 1rem !important;
+    background: linear-gradient(to right, #9F1239, #E11D48) !important;
+    box-shadow: 0 4px 15px rgba(159, 18, 57, 0.3) !important;
+    transition: all 0.2s ease-in-out !important;
+  }
+  .swal2-confirm:active, .swal2-cancel:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* ลบเอฟเฟกต์วงกลมซ้อนหลังของไอคอน Success ใน SweetAlert2 ออก */
+  .swal2-icon.swal2-success [class^='swal2-success-circular-line'],
+  .swal2-icon.swal2-success .swal2-success-fix {
+    background-color: transparent !important;
+    display: none !important;
+  }
+  
+  /* ปรับแต่งไอคอน Success ให้ดูโมเดิร์น */
+  .swal2-icon.swal2-success {
+    border-color: #10B981 !important;
+    background: transparent !important;
+  }
+  .swal2-icon.swal2-success .swal2-success-ring {
+    border: 4px solid rgba(16, 185, 129, 0.2) !important;
+  }
+  .swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #10B981 !important;
+  }
+  
+  /* ปรับแต่งไอคอน Question สำหรับหน้ายืนยันการส่ง */
+  .swal2-icon.swal2-question {
+    border-color: #3B82F6 !important;
+    color: #3B82F6 !important;
+  }
+
+  /* --------------------------------------------------
+     7. Card Image Fallback Background
+     -------------------------------------------------- */
+  img[onerror] {
+    background-color: #F0F9FF;
+  }
+</style>
