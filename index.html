@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ระบบประเมินความพึงพอใจ - กลุ่มงานพยาธิวิทยาคลินิกและเทคนิคการแพทย์</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- SweetAlert2 CSS & JS สำหรับ Pop-up -->
+  <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-minimal@5/minimal.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Prompt สำหรับภาษาไทย, Roboto Mono สำหรับตัวเลขสถิติ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- กำหนดค่าธีมสีหลัก MedTech Theme -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Prompt', 'sans-serif'],
+            body: ['Prompt', 'sans-serif'],
+            mono: ['Roboto Mono', 'monospace']
+          },
+          colors: {
+            medical: {
+              deepBlue: '#1E3A8A',     /* สีน้ำเงินเข้มคลินิก (สีหลัก) */
+              crimson: '#9F1239',      /* สีแดงเลือดนก Rose-900 (สีรอง) */
+              slateBlue: '#3B82F6',
+              pastelGreen: '#10B981',
+              pastelRed: '#F43F5E'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- นำเข้าไฟล์ CSS -->
+  <?!= include('css'); ?>
+</head>
+<body class="font-body min-h-screen relative overflow-x-hidden flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-50 text-slate-800 transition-colors duration-1000">
+
+  <!-- พื้นหลังลวดลายวิทยาศาสตร์และ Blob สีพาสเทลสดใส -->
+  <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none fixed bg-blue-50/30">
+    <div class="absolute inset-0 tech-grid-pattern opacity-100"></div>
+    <div id="blob1" class="blob blob-1 absolute rounded-full filter blur-[100px] opacity-50 bg-sky-300"></div>
+    <div id="blob2" class="blob blob-2 absolute rounded-full filter blur-[120px] opacity-40 bg-pink-200"></div>
+    <div id="blob3" class="blob blob-3 absolute rounded-full filter blur-[100px] opacity-40 bg-emerald-200"></div>
+    <div id="blob4" class="blob blob-4 absolute rounded-full filter blur-[90px] opacity-30 bg-purple-200 right-10 top-1/2"></div>
+  </div>
+
+  <!-- แผงพื้นที่ทำงานหลัก -->
+  <main class="w-full max-w-[1400px] min-h-[90vh] z-10 bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(30,58,138,0.2)] border border-white/80 flex flex-col justify-between overflow-hidden relative">
+    
+    <!-- Header: ตกแต่งด้วย Glow และ Gradient น้ำเงิน-แดงเลือดนก -->
+    <header class="px-5 py-4 md:px-8 md:py-6 border-b border-blue-100/60 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/50 relative overflow-hidden">
+      <!-- Glow effect หลัง Header -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-full bg-gradient-to-r from-transparent via-blue-100/50 to-transparent blur-md pointer-events-none"></div>
+
+      <div class="flex items-center gap-4 w-full sm:w-auto z-10">
+        <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl overflow-hidden bg-white shadow-[0_0_15px_rgba(30,58,138,0.15)] border border-blue-50 flex items-center justify-center p-1">
+          <img id="appLogo" src="" onerror="this.src='https://placehold.co/150x150/1e3a8a/ffffff?text=LOGO';" class="w-full h-full object-contain" alt="Hospital Logo">
+        </div>
+        <div class="text-center sm:text-left">
+          <h1 class="text-xl md:text-3xl font-extrabold font-heading tracking-tight leading-tight bg-gradient-to-r from-medical-deepBlue via-blue-800 to-medical-crimson text-transparent bg-clip-text drop-shadow-sm">
+            แบบสำรวจความพึงพอใจห้องเจาะเลือด
+          </h1>
+          <p class="text-sm md:text-base text-slate-600 font-medium mt-1">
+            กลุ่มงานพยาธิวิทยาคลินิกและเทคนิคการแพทย์ โรงพยาบาลมะเร็งสุราษฎร์ธานี
+          </p>
+        </div>
+      </div>
+      
+      <button type="button" id="btnToggleView" class="shrink-0 px-6 py-2.5 rounded-full font-heading font-bold text-white bg-gradient-to-r from-medical-deepBlue to-blue-700 hover:shadow-[0_0_20px_rgba(30,58,138,0.4)] active:scale-95 transition-all duration-300 flex items-center gap-2 text-sm z-10 border border-blue-500/30">
+        <i id="toggleIcon" class="fa-solid fa-chart-pie text-blue-200"></i>
+        <span id="toggleText">ดูสถิติ (Dashboard)</span>
+      </button>
+    </header>
+
+    <!-- 1. คอนเทนเนอร์แบบประเมินสำหรับผู้รับบริการ -->
+    <section id="surveyViewContainer" class="flex-grow flex flex-col w-full p-4 md:p-8 animate-fade-in relative z-10">
+      
+      <div class="w-full text-center mb-6 md:mb-8">
+        <div class="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-medical-deepBlue to-blue-600 text-white px-8 py-2 md:py-3 rounded-full shadow-[0_0_15px_rgba(30,58,138,0.3)] border border-blue-400/30">
+          <i class="fa-solid fa-hand-holding-heart text-xl animate-pulse text-pink-300"></i>
+          <h2 class="text-base md:text-lg font-bold tracking-wide text-shadow-sm">โปรดเลือกคำตอบที่ตรงกับความรู้สึกของท่าน (ใช้เวลาไม่เกิน 1 นาที)</h2>
+        </div>
+      </div>
+
+      <!-- Skeleton Loader -->
+      <div id="skeletonLoader" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 w-full animate-pulse">
+        <div class="h-80 bg-blue-50 rounded-[2rem] border border-blue-100 shimmer"></div>
+        <div class="h-80 bg-blue-50 rounded-[2rem] border border-blue-100 shimmer"></div>
+        <div class="h-80 bg-blue-50 rounded-[2rem] border border-blue-100 shimmer hidden sm:block"></div>
+        <div class="h-80 bg-blue-50 rounded-[2rem] border border-blue-100 shimmer hidden lg:block"></div>
+        <div class="h-80 bg-blue-50 rounded-[2rem] border border-blue-100 shimmer hidden lg:block"></div>
+      </div>
+
+      <!-- พื้นที่จัดเรียงการ์ดคำถาม -->
+      <div id="questionsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 w-full hidden">
+        <!-- การ์ดจะถูก Render ที่นี่ -->
+      </div>
+
+      <!-- แถบด้านล่าง: QR Code และปุ่มส่ง -->
+      <div id="surveyFooter" class="mt-8 md:mt-12 flex flex-col md:flex-row items-stretch justify-between gap-6 w-full hidden">
+        
+        <!-- กล่อง QR Code คอมเมนต์ (Glow แดงเลือดนกอ่อนๆ) -->
+        <div class="bg-white/80 backdrop-blur-md p-4 md:p-5 rounded-3xl shadow-[0_5px_20px_rgba(159,18,57,0.08)] border border-rose-100 flex items-center gap-4 w-full md:w-1/2 hover:shadow-[0_5px_25px_rgba(159,18,57,0.15)] transition-shadow">
+          <div class="w-20 h-20 md:w-24 md:h-24 shrink-0 bg-white p-1.5 rounded-2xl shadow-inner border border-rose-50">
+            <img id="qrCodeImg" src="" alt="QR Code" class="w-full h-full object-contain rounded-xl">
+          </div>
+          <div>
+            <h4 class="text-medical-crimson font-extrabold text-sm md:text-base flex items-center gap-2">
+              <i class="fa-solid fa-comment-medical"></i> ข้อเสนอแนะเพิ่มเติม
+            </h4>
+            <p class="text-xs md:text-sm text-slate-600 mt-1 leading-relaxed">ท่านสามารถสแกน QR Code นี้ เพื่อให้ข้อเสนอแนะหรือพิมพ์ข้อความเพิ่มเติมได้เลย</p>
+          </div>
+        </div>
+
+        <!-- กล่องส่งแบบประเมิน (Glow น้ำเงิน) -->
+        <div class="bg-blue-50/50 backdrop-blur-md p-4 md:p-5 rounded-3xl shadow-[0_5px_20px_rgba(30,58,138,0.08)] border border-blue-100 flex flex-col sm:flex-row items-center justify-between gap-4 w-full md:w-1/2">
+          <div class="flex items-center gap-3 text-center sm:text-left">
+            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+              <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <div>
+              <h3 class="text-sm md:text-base font-bold text-medical-deepBlue">ยืนยันข้อมูล</h3>
+              <p class="text-xs text-slate-500">ตรวจสอบให้ครบถ้วนก่อนส่ง</p>
+            </div>
+          </div>
+          
+          <button type="button" id="btnSubmitSurvey" class="w-full sm:w-auto px-8 py-3 md:py-4 rounded-full font-heading font-extrabold text-white bg-gradient-to-r from-medical-deepBlue to-blue-700 hover:from-blue-800 hover:to-medical-deepBlue border-2 border-blue-200/30 active:scale-95 transition-all duration-300 shadow-[0_0_20px_rgba(30,58,138,0.3)] hover:shadow-[0_0_30px_rgba(30,58,138,0.5)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none group flex items-center justify-center gap-2 text-base md:text-lg">
+            <i class="fa-solid fa-check-circle group-hover:scale-110 transition-transform"></i>
+            ส่งแบบประเมิน
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. คอนเทนเนอร์ Dashboard สำหรับผู้บริหาร -->
+    <section id="dashboardViewContainer" class="flex-grow flex flex-col w-full p-4 md:p-8 hidden relative z-10 animate-fade-in">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-blue-100 pb-5 mb-6 gap-4 relative">
+        <h2 class="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-medical-deepBlue to-medical-crimson text-transparent bg-clip-text flex items-center gap-3">
+          <i class="fa-solid fa-chart-line text-medical-crimson"></i>
+          ภาพรวมความพึงพอใจผู้รับบริการ
+        </h2>
+        
+        <div class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-2xl border border-blue-100 shadow-[0_0_15px_rgba(30,58,138,0.1)]">
+          <button type="button" id="btnRefreshStats" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors flex items-center justify-center shadow-sm">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+          <div class="h-6 w-px bg-blue-100"></div>
+          <label for="yearFilter" class="text-sm font-bold text-slate-600 whitespace-nowrap"><i class="fa-regular fa-calendar text-medical-crimson mr-1"></i> ปี พ.ศ.</label>
+          <select id="yearFilter" class="bg-transparent font-bold text-medical-deepBlue focus:outline-none cursor-pointer text-sm">
+            <option value="ทั้งหมด">ทั้งหมด</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- สรุปภาพรวมด้านบน (Overall Stats) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- กล่องจำนวนรวม -->
+        <div class="col-span-1 bg-gradient-to-br from-medical-deepBlue via-blue-800 to-blue-900 rounded-3xl p-6 text-white shadow-[0_10px_30px_rgba(30,58,138,0.4)] relative overflow-hidden flex flex-col justify-center border border-blue-400/20">
+          <div class="absolute -right-5 -bottom-5 opacity-10">
+            <i class="fa-solid fa-users text-8xl"></i>
+          </div>
+          <div class="z-10">
+            <p class="text-sm text-blue-200 font-medium mb-1">จำนวนผู้ประเมินทั้งหมด</p>
+            <div class="flex items-baseline gap-2">
+              <h3 id="dashTotalCount" class="text-4xl md:text-5xl font-mono font-bold">0</h3>
+              <span class="text-lg">คน</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- กล่องค่าเฉลี่ยภาพรวมทั้งหมด -->
+        <div class="col-span-1 md:col-span-2 bg-white/90 backdrop-blur-md rounded-3xl p-6 border border-rose-100 shadow-[0_10px_30px_rgba(159,18,57,0.1)] flex flex-col justify-center relative overflow-hidden">
+          <!-- Glow แดงเลือดนกมุมขวา -->
+          <div class="absolute -right-20 -top-20 w-40 h-40 bg-medical-crimson/10 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-full bg-rose-50 text-medical-crimson flex items-center justify-center">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <h3 class="text-medical-crimson font-extrabold text-sm md:text-base tracking-wide">ค่าเฉลี่ยภาพรวมทุกคำถาม</h3>
+          </div>
+          
+          <div class="flex justify-between items-end mb-2">
+            <div class="flex flex-col">
+              <span id="dashOverallSatTxt" class="text-emerald-500 font-bold text-xl md:text-2xl font-mono leading-none">0%</span>
+              <span class="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">พอใจ</span>
+            </div>
+            <div class="flex flex-col text-right">
+              <span id="dashOverallDisTxt" class="text-rose-500 font-bold text-xl md:text-2xl font-mono leading-none">0%</span>
+              <span class="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">ไม่พอใจ</span>
+            </div>
+          </div>
+          <div class="w-full h-3 md:h-4 bg-rose-100 rounded-full overflow-hidden flex shadow-inner relative">
+            <div id="dashOverallBar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid แสดงสถิติรายข้อ (Q1 - Q5) -->
+      <h3 class="text-medical-deepBlue font-bold text-base md:text-lg mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-list-check text-blue-400"></i> สถิติแยกตามรายข้อ
+      </h3>
+      <div id="dashboardStatsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5 mb-8">
+        <!-- การ์ดรายข้อจะถูกวาดโดย JS -->
+      </div>
+
+      <!-- ส่วนแสดงความคิดเห็นเพิ่มเติม (Comments) -->
+      <div class="bg-white/90 backdrop-blur-md rounded-3xl p-5 md:p-6 border border-slate-200 shadow-[0_5px_25px_rgba(30,58,138,0.08)] flex-grow flex flex-col">
+        <h3 class="text-medical-deepBlue font-bold text-base md:text-lg mb-4 flex items-center gap-2">
+          <i class="fa-regular fa-comments text-medical-crimson"></i> ข้อเสนอแนะจากผู้รับบริการ (สแกน QR)
+        </h3>
+        <div id="commentsContainer" class="flex-grow bg-slate-50 rounded-2xl border border-slate-100 p-4 max-h-64 overflow-y-auto scrollbar-custom space-y-3">
+          <!-- คอมเมนต์จะถูกนำมาแสดงที่นี่ -->
+          <div class="text-center text-slate-400 text-sm py-4">กำลังโหลดข้อเสนอแนะ...</div>
+        </div>
+      </div>
+      
+    </section>
+
+    <!-- แผงส่วนท้ายกฎหมายและข้อบังคับความเป็นส่วนตัวระดับโรงพยาบาล (PDPA Footer Section) -->
+    <footer class="p-4 md:p-5 border-t border-white/20 bg-white/30 backdrop-blur-md flex flex-col items-center justify-center text-center gap-2 relative z-20">
+      <div class="text-[10px] md:text-xs text-slate-600 font-bold tracking-wide">
+        <i class="fa-solid fa-shield-halved text-medical-slateBlue mr-1"></i>
+        ระบบนี้เป็นไปตามนโยบาย PDPA : ไม่มีการบันทึกตัวตน ชื่อ-สกุล หรือประวัติส่วนตัวของผู้ประเมิน
+      </div>
+      <!-- อัปเดตเลขเวอร์ชันระบบประเมินเป็น v0.0.5 AI Core -->
+      <div class="text-[10px] md:text-xs text-slate-500 font-mono font-bold select-none tracking-wider mt-1">
+        Customer Satisfaction Survey v0.0.5 AI Core © 2026
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- นำเข้าระบบสคริปต์ความปลอดภัยและการควบคุมของหน้าบ้านทั้งหมด (js.html) -->
+  <?!= include('js'); ?>
+</body>
+</html>
